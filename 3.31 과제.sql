@@ -55,6 +55,7 @@ where c.name = '박지성';
 select b.bookname from book b where b.bookid not in 
 (select o.bookid from orders o where o.custid = (select custid c from customer c where c.name = '박지성'));
 -- not exists 버전
+박지성이 구매하지 않은 도서
 select b.bookname from book b where not exists (select 1 from orders o 
 join customer c on o.custid = c.custid where o.bookid = b.bookid and c.name = '박지성');
 
@@ -84,17 +85,21 @@ select name, avg(saleprice) from customer join orders on customer.custid = order
 11.
 select c.name, b.bookname from customer c join orders o on o.custid = c.custid join book b on b.bookid = o.bookid order by c.name;
 12.
-select o.orderid, b.bookname, (b.price - o.saleprice) as 차이액 from orders o join book b on o.bookid = b.bookid where (b.price - o.saleprice) = 
-(select max(b2.price - o2.saleprice) from orders o2 join book b2 on o2.bookid = b2.bookid);
+select orderid, bookname, 차이액 from (
+    select o.orderid, b.bookname, (b.price - o.saleprice) as 차이액, 
+    rank() over(order by (b.price-o.saleprice) desc) as rnk 
+    from orders o join book b on o.bookid = b.bookid
+) where rnk = 1;
+
 13.
 select c.name from customer c join orders o on o.custid = c.custid group by c.name 
 having avg(o.saleprice) > (select avg(saleprice) from orders);
 
 3
 1.
-select distinct c.name from customer c join orders o on o.custid = c.custid join book b on o.bookid = b.bookid where c.name != '박지성' and exists 
-(select 1 from book b2 join orders o2 on o2.bookid = b2.bookid join customer c2 on c2.custid = o2.custid 
-where c2.name = '박지성' and b2.publisher = b.publisher);
+select distinct c.name from customer c join orders o on o.custid = c.custid join book b on o.bookid = b.bookid where c.name != '박지성' and b.publisher in  
+(select b2.publisher from book b2 join orders o2 on o2.bookid = b2.bookid join customer c2 on c2.custid = o2.custid 
+where c2.name = '박지성');
 2.
 select c.name from customer c where exists 
 (select 1 from orders o join book b on o.bookid = b.bookid where o.custid = c.custid having count(distinct b.publisher) >= 2);

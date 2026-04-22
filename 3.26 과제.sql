@@ -55,7 +55,7 @@ select h.이름 from 학생 h join 수강 s on h.학번 = s.학번 join 과목 g
   3  having count(distinct s.과목코드) = (select count(*) from 과목);
 1. 학생과 수강, 과목 조인 2. 학생의 이름으로 그룹화 한후 3. 이름별 수강테이블의 과목코드 수와 4. 전체 과목수와 비교해서 같으면 추출
 17-4-2
-select s.이름 from 학생 s where not exists (select 과목코드 from 과목 minus select 과목코드 from 수강 e where e.학번 = s.학번)
+
 1. 전체 과목코드 집합에서 학생별로 수강한 과목코드 리스트를 빼고 2. 그게 공집합이라면 모든 과목을 수강한거니까 이름 추출
 
 18-1
@@ -67,12 +67,10 @@ select salesperson from orders where custname = '홍길동';
 1. orders 테이블에서 salesperson 가져오고 2. custname이 홍길동인 것만 남김
 
 18-3
-select name from salesperson
-  2  intersect
-  3  select salesperson from orders;
+select name from salesperson intersect select salesperson from orders;
 1. salesperson 전체 이름과 2. orders테이블에 있는 이름과 교집합
 
-18-4
+18-4select s.이름 from 학생 s where not exists (select 과목코드 from 과목 minus select 과목코드 from 수강 e where e.학번 = s.학번)
 select name from salesperson
   2  minus
   3  select salesperson from orders;

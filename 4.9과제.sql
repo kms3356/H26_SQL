@@ -26,6 +26,11 @@ select count(*) as 사원수, sum(sal), round(avg(sal),2) from emp where deptno 
 
 ⓽평균 급여가 가장 높은 부서의 번호를 출력하시오. 
 select deptno from emp group by deptno having avg(sal) = (select max(avg(sal)) from emp e2 group by deptno);
+select deptno from (
+    select e.deptno, rank() over(order by avg(sal) desc) as rnk
+    from emp e
+    group by e.deptno
+) where rnk = 1;
 # max(avg()) 이렇게쓸거면 혼자만 써야됨. 
 # 서브쿼리안에서 where로 연결(상관커리) 와 group으로 그룹화 하는거 차이
 # 메인쿼리 행마다 한번실행 vs 딱 한번 전체 실행후 메인에 전달
@@ -294,11 +299,14 @@ select last_name, job_id from employees where job_id = (select job_id from emplo
 
 ⓷부서별 최고 급여를 받는 직원의 last_name, department_id를 출력하시오. 
 # 상관질의
-select e.last_name, e.department_id from employees e where e.salary = (select max(e2.salary) from employees e2 where e.department_id = e2.department_id);
-# 가상테이블 조인
-select e.last_name, e.department_id from employees e 
-join (select department_id, max(salary) as max_sal from employees group by department_id) m
-on e.department_id = m.department_id and e.salary = m.max_sal;
+select last_name, department_id from (
+    e.last_name, e.department_id,
+    rank() over(partition by e.department_id order by e.salary desc) as rnk
+    from employee e
+) where rnk = 1;
+RANK(),공동 순위만큼 건너뜀,"1등, 1등, 3등"
+DENSE_RANK(),공동 순위가 있어도 연속됨,"1등, 1등, 2등"
+ROW_NUMBER(),중복 없이 무조건 고유 번호,"1등, 2등, 3등"
 
 ⓸IT부서 직원의 평균 급여보다 많이 받는 직원의 last_name과 salary를 출력하시오. 
 select last_name, salary from employees 
@@ -331,5 +339,10 @@ select employee_id, last_name from (
     from employees e
 ) where department_id = (select department_id from departments where department_name = 'FI_ACCOUNT')
 and salary > 평균;
+
+select employee_id, last_name from (
+    select e.*, (select avg(salary) from employees where department_name = 'FI_ACCOUNT') as 평균
+    from employees e
+) where salary > 평균 and department_id = (select department_id from departments where department_name = 'FI_ACCOUNT');
 # 안합치고 집계함수 쓰고싶을때 from절에서 over함수 (partition by, order by 등)
  

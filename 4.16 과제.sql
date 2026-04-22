@@ -86,7 +86,11 @@ create view v_cust_max_order as (
     from customer c join orders o on c.custid = o.custid join book b on o.bookid = b.bookid
     where o.saleprice = (select max(o2.saleprice) from orders o2 where c.custid = o2.custid)
 );
-
+select name, bookname, saleprice
+from (
+    select c.name, b.bookname, o.saleprice, rank() over(partition by c.name order by o.saleprice desc) as rnk
+    from customer c join orders o on c.custid = o.custid join book b on o.bookid = b.bookid
+) where rnk = 1
 문제 10.
 도서명, 고객이름, 판매가, 해당 도서 평균 판매가, 평균 대비 차이를 보여주는 뷰
 v_book_price_compare를 작성하시오.

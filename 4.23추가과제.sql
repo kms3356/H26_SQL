@@ -202,7 +202,7 @@ create or replace view v35 as
  (총 주문 금액이 가장 높은 영업사원 조회하는 뷰)
 create view v36 as 
     select salesperson from (
-        select o.salesperson, sum(o.amount), rank() over(order by sum(o.amount) desc) as rnk from orders o group by o.salesperson
+        select o.salesperson, rank() over(order by sum(o.amount) desc) as rnk from orders o group by o.salesperson
     ) where rnk = 1;
     
  12. 도시별 영업사원 활동 현황 뷰를 작성하시오
