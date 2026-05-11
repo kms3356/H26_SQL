@@ -1,0 +1,9 @@
+SQL> declare v_name varchar2(50) := 'Oracle';
+  2  begin dbms_output.put_line('hello' || v_name);
+  3  end;
+  4  /
+helloOracle                                                                     
+
+PL/SQL 처리가 정상적으로 완료되었습니다.
+
+SQL> spool off
